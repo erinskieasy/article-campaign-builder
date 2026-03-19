@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Fluid Archive | Article Transformation</title>
+  <meta name="description" content="Transform research papers into multiple derivative article formats using AI — non-technical, commentary, AI-focused, and global news." />
+
+  <!-- Material Symbols -->
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+  <!-- Google Fonts: Inter -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "surface-bright": "#f9f9fb",
+            "inverse-primary": "#4b8eff",
+            "on-tertiary-fixed-variant": "#54516d",
+            "primary-fixed-dim": "#c2d4ff",
+            "on-secondary-fixed": "#3e3f45",
+            "surface-container-low": "#f2f4f6",
+            "on-primary": "#f7f7ff",
+            "surface-container": "#ebeef2",
+            "outline-variant": "#acb3b8",
+            "secondary-fixed-dim": "#d4d4db",
+            "on-primary-fixed-variant": "#0058bb",
+            "on-background": "#2d3338",
+            "inverse-on-surface": "#9c9d9f",
+            "on-error": "#fff7f6",
+            "inverse-surface": "#0c0e10",
+            "surface-container-highest": "#dde3e9",
+            "on-secondary-fixed-variant": "#5a5b61",
+            "on-secondary": "#f9f8ff",
+            "surface": "#f9f9fb",
+            "outline": "#757c81",
+            "surface-container-lowest": "#ffffff",
+            "secondary": "#5d5f65",
+            "on-surface": "#2d3338",
+            "secondary-dim": "#515359",
+            "secondary-container": "#e2e2e9",
+            "on-surface-variant": "#596065",
+            "secondary-fixed": "#e2e2e9",
+            "surface-variant": "#dde3e9",
+            "surface-tint": "#005bc1",
+            "on-primary-fixed": "#003d85",
+            "on-tertiary-container": "#4a4863",
+            "on-primary-container": "#004ea8",
+            "primary-container": "#d8e2ff",
+            "tertiary-dim": "#53506b",
+            "error-dim": "#4e0309",
+            "tertiary-fixed": "#d8d3f4",
+            "surface-dim": "#d3dbe2",
+            "surface-container-high": "#e4e9ee",
+            "error": "#9f403d",
+            "on-tertiary": "#fcf7ff",
+            "primary-dim": "#004faa",
+            "background": "#f9f9fb",
+            "tertiary-container": "#d8d3f4",
+            "primary": "#005bc1",
+            "error-container": "#fe8983",
+            "on-secondary-container": "#505157",
+            "primary-fixed": "#d8e2ff",
+            "on-error-container": "#752121",
+            "on-tertiary-fixed": "#37354f",
+            "tertiary": "#5f5c78",
+            "tertiary-fixed-dim": "#cac6e6"
+          },
+          fontFamily: {
+            "headline": ["Inter"],
+            "body": ["Inter"],
+            "label": ["Inter"]
+          },
+          borderRadius: {
+            "DEFAULT": "1rem",
+            "lg": "2rem",
+            "xl": "3rem",
+            "full": "9999px"
+          },
+        },
+      },
+    };
+  </script>
+
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="/css/styles.css" />
+</head>
+<body class="bg-background text-on-background min-h-screen selection:bg-primary-container">
+  <div id="app">
+    <!-- App content rendered by app.js -->
+    <div class="flex items-center justify-center min-h-screen">
+      <div class="text-center">
+        <span class="spinner" style="width:2rem;height:2rem;border-width:3px;"></span>
+        <p class="text-on-surface-variant mt-4 text-sm">Loading...</p>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="/js/app.js"></script>
+</body>
+</html>

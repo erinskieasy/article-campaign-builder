@@ -1,0 +1,15 @@
+{
+  "name": "article-campaign-builder",
+  "version": "1.0.0",
+  "description": "Transform a main research paper into multiple derivative sub-articles using OpenAI",
+  "main": "src/application/server.js",
+  "scripts": {
+    "start": "node src/application/server.js",
+    "dev": "node --watch src/application/server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.0",
+    "openai": "^4.73.0",
+    "dotenv": "^16.4.5"
+  }
+}
