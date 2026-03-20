@@ -5,7 +5,8 @@
   "main": "src/application/server.js",
   "scripts": {
     "start": "node src/application/server.js",
-    "dev": "node --watch src/application/server.js"
+    "dev": "node --watch src/application/server.js",
+    "vercel-dev": "vercel dev"
   },
   "dependencies": {
     "express": "^4.21.0",
