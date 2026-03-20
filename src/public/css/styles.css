@@ -404,3 +404,98 @@ textarea:focus {
   animation: fadeIn 0.4s ease-out;
 }
 
+/* ===== PDF Drop-Zone ===== */
+.pdf-drop-zone {
+  position: relative;
+  border: 2px dashed #acb3b8;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  background: #f9f9fb;
+}
+
+.pdf-drop-zone:hover,
+.pdf-drop-zone.dragover {
+  border-color: #005bc1;
+  background: rgba(0, 91, 193, 0.04);
+}
+
+.pdf-drop-zone.dragover {
+  transform: scale(1.01);
+  box-shadow: 0 0 0 4px rgba(0, 91, 193, 0.1);
+}
+
+.pdf-drop-zone.loading {
+  pointer-events: none;
+  border-color: #005bc1;
+  background: rgba(0, 91, 193, 0.03);
+}
+
+.pdf-drop-zone.success {
+  border-color: #059669;
+  background: rgba(5, 150, 105, 0.04);
+}
+
+.pdf-drop-zone.error {
+  border-color: #9f403d;
+  background: rgba(159, 64, 61, 0.04);
+}
+
+.pdf-drop-zone .drop-icon {
+  font-size: 2rem;
+  color: #acb3b8;
+  transition: color 0.25s ease;
+}
+
+.pdf-drop-zone:hover .drop-icon,
+.pdf-drop-zone.dragover .drop-icon {
+  color: #005bc1;
+}
+
+.pdf-drop-zone.success .drop-icon {
+  color: #059669;
+}
+
+.pdf-drop-zone.error .drop-icon {
+  color: #9f403d;
+}
+
+.pdf-clear-btn {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 9999px;
+  color: #596065;
+  transition: all 0.15s ease;
+}
+
+.pdf-clear-btn:hover {
+  background: rgba(0, 0, 0, 0.06);
+  color: #2d3338;
+}
+
+.pdf-divider {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: #acb3b8;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.pdf-divider::before,
+.pdf-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: #dde3e9;
+}
+
