@@ -4,12 +4,12 @@
  */
 export function renderMainCard(state) {
   const hasSource = state.sourceText && state.sourceText.trim().length > 0;
-  const title = state.sourceTitle || 'Paste Your Article';
+  const title = state.sourceTitle || 'Load Your Article';
   const summary = state.sourceSummary || 'Click the button below to paste your research paper or article. We\'ll transform it into multiple formats using AI.';
 
   return `
     <div class="flex justify-start mb-24 relative z-10">
-      <div class="w-full max-w-3xl bg-surface-container-lowest rounded-lg p-10 shadow-xl shadow-on-surface/5 border border-outline-variant/10 animate-in">
+      <div class="w-full bg-surface-container-lowest rounded-lg p-10 shadow-xl shadow-on-surface/5 border border-surface-variant animate-in">
         <div class="flex items-start justify-between mb-8">
           <span class="bg-primary-container text-on-primary-container px-4 py-1.5 rounded-md text-xs font-bold tracking-wider uppercase">
             Source Document
@@ -40,7 +40,7 @@ export function renderMainCard(state) {
               </button>`
       : `<button id="btn-paste-article" class="bg-gradient-to-br from-primary to-primary-dim text-on-primary px-8 py-4 rounded-full font-bold shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2">
                 <span class="material-symbols-outlined">content_paste</span>
-                Paste Article
+                Load Article
               </button>`
     }
         </div>
