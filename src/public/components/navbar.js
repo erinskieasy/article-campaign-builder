@@ -1,6 +1,8 @@
 /**
  * Navbar Component
  * Fixed top navigation bar with branding and action buttons.
+ * The notification bell slot is rendered separately by app.js
+ * to allow the notification pipeline to control it.
  */
 export function renderNavbar() {
   return `
@@ -10,17 +12,20 @@ export function renderNavbar() {
         <div class="hidden md:flex items-center gap-6">
           <a class="text-slate-500 hover:text-slate-800 transition-colors" href="#">Archive</a>
           <a class="text-blue-600 font-semibold border-b-2 border-blue-600 pb-1" href="#">Transform</a>
+          <!--Will add these features later-->
+          <!--
           <a class="text-slate-500 hover:text-slate-800 transition-colors" href="#">Analytics</a>
           <a class="text-slate-500 hover:text-slate-800 transition-colors" href="#">Settings</a>
+          -->
         </div>
       </div>
-      <div class="flex items-center gap-3">
-        <button class="p-2 hover:bg-slate-200/50 rounded-full transition-all active:scale-95 duration-200 ease-in-out">
-          <span class="material-symbols-outlined text-slate-600">notifications</span>
-        </button>
+      <div class="flex items-center gap-3 relative" id="navbar-actions">
+        <!-- Notification bell injected here by app.js -->
+        <!-- Profile icon temporarily disabled
         <button class="p-2 hover:bg-slate-200/50 rounded-full transition-all active:scale-95 duration-200 ease-in-out">
           <span class="material-symbols-outlined text-slate-600">account_circle</span>
         </button>
+        -->
       </div>
     </nav>
   `;

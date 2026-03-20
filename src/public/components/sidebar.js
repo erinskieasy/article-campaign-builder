@@ -14,6 +14,8 @@ export function renderSidebar() {
           <span class="material-symbols-outlined">dashboard</span>
           <span class="text-sm font-medium">Dashboard</span>
         </a>
+        <!-- comment out all these other buttons-->
+        <!--
         <a class="flex items-center gap-3 p-3 text-slate-600 hover:bg-slate-200/50 rounded-xl transition-all" href="#">
           <span class="material-symbols-outlined">auto_awesome</span>
           <span class="text-sm font-medium">Templates</span>
@@ -30,16 +32,19 @@ export function renderSidebar() {
           <span class="material-symbols-outlined">group</span>
           <span class="text-sm font-medium">Community</span>
         </a>
+        -->
       </nav>
       <div class="pt-6 border-t border-slate-100 space-y-1">
-        <a class="flex items-center gap-3 p-3 text-slate-600 hover:bg-slate-200/50 rounded-xl transition-all" href="#">
+        <a id="btn-sidebar-help" class="flex items-center gap-3 p-3 text-slate-600 hover:bg-slate-200/50 rounded-xl transition-all cursor-pointer" href="#">
           <span class="material-symbols-outlined">help</span>
           <span class="text-sm font-medium">Help</span>
         </a>
+        <!-- we dont have auth yet so let remove logout button for now
         <a class="flex items-center gap-3 p-3 text-slate-600 hover:bg-slate-200/50 rounded-xl transition-all" href="#">
           <span class="material-symbols-outlined">logout</span>
           <span class="text-sm font-medium">Logout</span>
         </a>
+        -->
       </div>
     </aside>
   `;

@@ -8,15 +8,33 @@ import { renderMainCard, mountMainCard } from '../components/mainCard.js';
 import { renderSubCards, mountSubCards } from '../components/subCard.js';
 import { renderArticleModal, openArticleModal, mountArticleModal } from '../components/articleModal.js';
 import { renderInputModal, openInputModal, mountInputModal } from '../components/inputModal.js';
-import { renderConnectors } from '../components/connectors.js';
+import { renderSettingsModal, openSettingsModal, mountSettingsModal } from '../components/settingsModal.js';
+import { renderNewCardModal, openNewCardModal, mountNewCardModal } from '../components/newCardModal.js';
+import { renderHelpModal, openHelpModal, mountHelpModal } from '../components/helpModal.js';
+import { renderConnectors, updateConnectors } from '../components/connectors.js';
+
+// ─── Notification Pipeline ─────────────────────────────────
+import { pushNotification } from '../components/notifications/notificationService.js';
+import { renderNotificationBell, mountNotificationBell } from '../components/notifications/notificationBell.js';
+import { renderNotificationPanel, mountNotificationPanel, togglePanel } from '../components/notifications/notificationPanel.js';
+
+// ─── Default system prompts (must match backend article.js) ────
+const DEFAULT_PROMPTS = {
+  'non-technical': `You are a skilled science communicator who makes complex topics accessible to everyone.\nRewrite the following research paper as a friendly, engaging article for a general audience.\nUse everyday analogies, avoid jargon, and keep the tone warm and inviting.\nAim for 600-900 words. Use short paragraphs and clear subheadings.\nReturn the article in Markdown format.`,
+  'commentary': `You are an opinionated technology commentator writing for a popular blog.\nWrite a thought-provoking commentary piece based on the following paper.\nInclude your critical perspective on ethical implications, industry shifts, and what this means for society.\nBe bold with your opinions but back them up with reasoning.\nAim for 700-1000 words in Markdown format with a compelling headline.`,
+  'ai-focused': `You are an AI/ML researcher writing for a technical-but-accessible audience.\nReframe the following paper through the lens of artificial intelligence and machine learning.\nHighlight connections to AI, potential ML applications, synergies with neural networks, and implications for the AI industry.\nAim for 700-1000 words in Markdown format.`,
+  'trending-news': `You are a senior journalist at a major international news wire service.\nWrite a crisp, authoritative news article based on the following paper.\nFocus on global impact, international competition, policy implications, and what world leaders should know.\nUse the inverted pyramid structure. Be factual and punchy.\nAim for 500-700 words in Markdown format with a strong headline.`
+};
 
 // ─── Application State ─────────────────────────────────────
 const state = {
   sourceText: '',
   sourceTitle: '',
   sourceSummary: '',
-  articles: {},       // { 'non-technical': { content, title, ... }, ... }
-  generating: {},     // { 'non-technical': true/false, ... }
+  articles: {},        // { 'non-technical': { content, title, ... }, ... }
+  generating: {},      // { 'non-technical': true/false, ... }
+  customPrompts: {},   // { 'non-technical': 'overridden prompt', ... }
+  customTypes: {},     // { 'custom-id': { icon, title, desc, systemPrompt }, ... }
 };
 
 const TYPE_META = {
@@ -26,12 +44,41 @@ const TYPE_META = {
   'trending-news': { icon: 'public', title: 'Trending Global News' }
 };
 
+// ─── Helpers ────────────────────────────────────────────────
+function getPromptForType(type) {
+  if (state.customPrompts[type]) return state.customPrompts[type];
+  if (state.customTypes[type]) return state.customTypes[type].systemPrompt;
+  return DEFAULT_PROMPTS[type] || '';
+}
+
+function getMetaForType(type) {
+  if (state.customTypes[type]) {
+    return { icon: state.customTypes[type].icon, title: state.customTypes[type].title };
+  }
+  return TYPE_META[type] || { icon: 'article', title: type };
+}
+
+function downloadMarkdown(filename, content) {
+  const blob = new Blob([content], { type: 'text/markdown;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
 // ─── API Client ─────────────────────────────────────────────
-async function apiGenerateOne(sourceText, type) {
+async function apiGenerateOne(sourceText, type, customPrompt) {
+  const body = { sourceText, type };
+  if (customPrompt) body.customPrompt = customPrompt;
+
   const res = await fetch('/api/articles/generate', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ sourceText, type })
+    body: JSON.stringify(body)
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({ error: 'Network error' }));
@@ -40,11 +87,14 @@ async function apiGenerateOne(sourceText, type) {
   return res.json();
 }
 
-async function apiGenerateAll(sourceText) {
+async function apiGenerateAll(sourceText, customTypes) {
+  const body = { sourceText };
+  if (Object.keys(customTypes).length > 0) body.customTypes = customTypes;
+
   const res = await fetch('/api/articles/generate-all', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ sourceText })
+    body: JSON.stringify(body)
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({ error: 'Network error' }));
@@ -63,7 +113,6 @@ function render() {
   mountMainCard(state, {
     onPasteClick: () => openInputModal(),
     onViewSource: () => {
-      // Show source article in the article modal
       openArticleModal(
         { content: state.sourceText, title: state.sourceTitle },
         { icon: 'description', title: 'Source Document' }
@@ -77,11 +126,22 @@ function render() {
     onOpen: (type) => {
       const article = state.articles[type];
       if (article && article.content) {
-        openArticleModal(article, TYPE_META[type]);
+        openArticleModal(article, getMetaForType(type));
       }
     },
-    onGenerate: (type) => handleGenerate(type)
+    onGenerate: (type) => handleGenerate(type),
+    onDownload: (type) => handleDownloadOne(type),
+    onSettings: (type) => {
+      const prompt = getPromptForType(type);
+      const meta = getMetaForType(type);
+      openSettingsModal(type, prompt, meta);
+    },
+    onAddCard: () => openNewCardModal(),
+    onDeleteCard: (type) => handleDeleteCard(type)
   });
+
+  // Re-calculate dynamic connectors after rendering
+  setTimeout(updateConnectors, 50); // Small delay to ensure DOM is ready
 }
 
 // ─── Event Handlers ─────────────────────────────────────────
@@ -95,11 +155,28 @@ async function handleGenerate(type) {
   render();
 
   try {
-    const result = await apiGenerateOne(state.sourceText, type);
+    const prompt = getPromptForType(type);
+    const result = await apiGenerateOne(state.sourceText, type, prompt);
     state.articles[type] = result.article;
+
+    const meta = getMetaForType(type);
+    pushNotification({
+      title: `${meta.title} Ready`,
+      message: `"${result.article.title || meta.title}" has been generated successfully.`,
+      icon: meta.icon || 'check_circle',
+      type: 'success'
+    });
   } catch (err) {
     state.articles[type] = { error: err.message, type };
     console.error(`[Generate ${type}] Error:`, err.message);
+
+    const meta = getMetaForType(type);
+    pushNotification({
+      title: `${meta.title} Failed`,
+      message: err.message,
+      icon: 'error',
+      type: 'error'
+    });
   }
 
   state.generating[type] = false;
@@ -112,20 +189,80 @@ async function handleGenerateAll() {
     return;
   }
 
-  // Mark all as generating
-  Object.keys(TYPE_META).forEach(t => { state.generating[t] = true; });
+  // Mark all types (built-in + custom) as generating
+  const allTypeKeys = [...Object.keys(TYPE_META), ...Object.keys(state.customTypes)];
+  allTypeKeys.forEach(t => { state.generating[t] = true; });
   render();
 
   try {
-    const result = await apiGenerateAll(state.sourceText);
+    // Build custom types map with any prompt overrides
+    const customTypesForApi = {};
+    // Include prompt overrides for built-in types
+    Object.keys(DEFAULT_PROMPTS).forEach(t => {
+      if (state.customPrompts[t]) {
+        customTypesForApi[t] = { systemPrompt: state.customPrompts[t] };
+      }
+    });
+    // Include user-created custom cards
+    Object.entries(state.customTypes).forEach(([key, val]) => {
+      customTypesForApi[key] = { systemPrompt: val.systemPrompt };
+    });
+
+    const result = await apiGenerateAll(state.sourceText, customTypesForApi);
+    let successCount = 0;
+    let errorCount = 0;
     Object.entries(result.articles).forEach(([type, article]) => {
       state.articles[type] = article;
+      if (article.error) errorCount++;
+      else successCount++;
+    });
+
+    pushNotification({
+      title: 'Batch Generation Complete',
+      message: `${successCount} article${successCount !== 1 ? 's' : ''} generated${errorCount > 0 ? `, ${errorCount} failed` : ''}.`,
+      icon: errorCount > 0 ? 'warning' : 'auto_awesome',
+      type: errorCount > 0 ? 'info' : 'success'
     });
   } catch (err) {
     console.error('[GenerateAll] Error:', err.message);
+    pushNotification({
+      title: 'Batch Generation Failed',
+      message: err.message,
+      icon: 'error',
+      type: 'error'
+    });
   }
 
-  Object.keys(TYPE_META).forEach(t => { state.generating[t] = false; });
+  allTypeKeys.forEach(t => { state.generating[t] = false; });
+  render();
+}
+
+function handleDownloadOne(type) {
+  const article = state.articles[type];
+  if (!article || !article.content) return;
+
+  const meta = getMetaForType(type);
+  const filename = `${meta.title.replace(/[^a-zA-Z0-9]+/g, '_').toLowerCase()}.md`;
+  downloadMarkdown(filename, article.content);
+}
+
+function handleDownloadAll() {
+  const allTypes = { ...TYPE_META, ...state.customTypes };
+  Object.keys(allTypes).forEach(type => {
+    const article = state.articles[type];
+    if (article && article.content) {
+      const meta = getMetaForType(type);
+      const filename = `${meta.title.replace(/[^a-zA-Z0-9]+/g, '_').toLowerCase()}.md`;
+      downloadMarkdown(filename, article.content);
+    }
+  });
+}
+
+function handleDeleteCard(type) {
+  delete state.customTypes[type];
+  delete state.articles[type];
+  delete state.generating[type];
+  delete state.customPrompts[type];
   render();
 }
 
@@ -133,7 +270,6 @@ function handleSourceSubmit({ title, text }) {
   state.sourceText = text;
   state.sourceTitle = title || 'Untitled Article';
 
-  // Create a summary from the first 200 characters
   const cleaned = text.replace(/\s+/g, ' ').trim();
   state.sourceSummary = cleaned.length > 200
     ? cleaned.substring(0, 200) + '...'
@@ -158,10 +294,16 @@ function init() {
           <p class="text-primary font-semibold tracking-widest text-xs uppercase mb-2">Editorial Hub</p>
           <h1 class="text-4xl md:text-5xl font-black tracking-tight text-on-surface">Article Transformation</h1>
         </div>
-        <button id="btn-generate-all" class="bg-gradient-to-br from-primary to-primary-dim text-on-primary px-8 py-4 rounded-full font-bold shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2">
-          <span class="material-symbols-outlined">auto_awesome</span>
-          Generate All
-        </button>
+        <div class="flex items-center gap-3">
+          <button id="btn-download-all" class="bg-surface-container-lowest text-on-surface-variant px-6 py-4 rounded-full font-bold border border-outline-variant/20 hover:bg-surface-container-high active:scale-95 transition-all flex items-center justify-center gap-2">
+            <span class="material-symbols-outlined">download</span>
+            Download All
+          </button>
+          <button id="btn-generate-all" class="bg-gradient-to-br from-primary to-primary-dim text-on-primary px-8 py-4 rounded-full font-bold shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2">
+            <span class="material-symbols-outlined">auto_awesome</span>
+            Generate All
+          </button>
+        </div>
       </header>
 
       <div class="relative">
@@ -224,6 +366,12 @@ function init() {
     <!-- Modals -->
     ${renderArticleModal()}
     ${renderInputModal()}
+    ${renderSettingsModal()}
+    ${renderNewCardModal()}
+    ${renderNotificationPanel()}
+    <div id="help-modal-container">
+      ${renderHelpModal()}
+    </div>
   `;
 
   // Mount global event listeners
@@ -231,8 +379,51 @@ function init() {
   mountInputModal({
     onSubmit: handleSourceSubmit
   });
+  mountSettingsModal({
+    onApply: (type, newPrompt) => {
+      if (state.customTypes[type]) {
+        state.customTypes[type].systemPrompt = newPrompt;
+      } else {
+        state.customPrompts[type] = newPrompt;
+      }
+    },
+    onReset: (type) => {
+      if (state.customTypes[type]) return;
+      delete state.customPrompts[type];
+    }
+  });
+  mountNewCardModal({
+    onCreate: ({ name, icon, instructions }) => {
+      const id = 'custom-' + name.replace(/[^a-zA-Z0-9]+/g, '-').toLowerCase() + '-' + Date.now();
+      state.customTypes[id] = {
+        icon,
+        title: name,
+        desc: instructions.length > 100 ? instructions.substring(0, 100) + '...' : instructions,
+        systemPrompt: instructions
+      };
+      render();
+    }
+  });
+
+  // ─── Notification Pipeline ────────────────────────────────
+  // Inject bell + panel into navbar actions slot
+  const navbarActions = document.getElementById('navbar-actions');
+  if (navbarActions) {
+    navbarActions.insertAdjacentHTML('afterbegin', renderNotificationBell());
+  }
+  mountNotificationBell((isOpen) => togglePanel(isOpen));
+  mountNotificationPanel();
+
+  const btnHelp = document.getElementById('btn-sidebar-help');
+  if (btnHelp) btnHelp.addEventListener('click', (e) => {
+    e.preventDefault();
+    openHelpModal();
+  });
 
   document.getElementById('btn-generate-all').addEventListener('click', handleGenerateAll);
+  document.getElementById('btn-download-all').addEventListener('click', handleDownloadAll);
+
+  window.addEventListener('resize', updateConnectors);
 
   const mobileAdd = document.getElementById('btn-mobile-add');
   if (mobileAdd) mobileAdd.addEventListener('click', () => openInputModal());

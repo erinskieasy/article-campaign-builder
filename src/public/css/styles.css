@@ -2,10 +2,11 @@
 
 /* SVG connector lines */
 .node-connector {
-  stroke: #acb3b8;
+  stroke: #005bc1;
   stroke-width: 2;
   fill: none;
-  opacity: 0.3;
+  opacity: 0.15;
+  transition: opacity 0.3s ease;
 }
 
 /* Material Symbols baseline */
@@ -257,3 +258,149 @@ textarea:focus {
   background: #fee2e2;
   color: #991b1b;
 }
+
+/* ===== Add Card (dashed "+" card) ===== */
+.add-card-btn:hover .material-symbols-outlined {
+  transform: scale(1.1);
+  transition: transform 0.2s ease;
+}
+
+/* ===== Icon picker buttons ===== */
+.icon-pick-btn {
+  transition: all 0.15s ease;
+}
+
+.icon-pick-btn:hover {
+  transform: scale(1.05);
+}
+
+/* ===== Monospace font for prompt editing ===== */
+.font-mono {
+  font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
+}
+
+/* ===== Additional animation delays for 5+ cards ===== */
+.animate-in-delay-5 { animation-delay: 0.5s; opacity: 0; }
+.animate-in-delay-6 { animation-delay: 0.6s; opacity: 0; }
+.animate-in-delay-7 { animation-delay: 0.7s; opacity: 0; }
+.animate-in-delay-8 { animation-delay: 0.8s; opacity: 0; }
+
+/* ===== Notification Bell Badge ===== */
+.notif-badge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 9999px;
+  background: #ef4444;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 18px;
+  text-align: center;
+  pointer-events: none;
+  box-shadow: 0 0 0 2px rgba(249, 249, 251, 1);
+}
+
+@keyframes badgePop {
+  0% { transform: scale(0.5); }
+  50% { transform: scale(1.3); }
+  100% { transform: scale(1); }
+}
+
+.notif-badge-pop {
+  animation: badgePop 0.3s ease;
+}
+
+/* ===== Notification Panel ===== */
+.notif-panel {
+  position: fixed;
+  top: 56px;
+  right: 1rem;
+  width: 360px;
+  max-height: 480px;
+  z-index: 200;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(-8px) scale(0.96);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.notif-panel.open {
+  pointer-events: all;
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.notif-panel-inner {
+  background: #ffffff;
+  border-radius: 1rem;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.14), 0 0 0 1px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  max-height: 480px;
+}
+
+.notif-list {
+  overflow-y: auto;
+  max-height: 400px;
+  scrollbar-width: thin;
+  scrollbar-color: #acb3b8 transparent;
+}
+
+.notif-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.notif-list::-webkit-scrollbar-thumb {
+  background: #acb3b8;
+  border-radius: 2px;
+}
+
+.notif-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.875rem 1.25rem;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  border-bottom: 1px solid rgba(172, 179, 184, 0.08);
+}
+
+.notif-item:hover {
+  background: #f2f4f6;
+}
+
+.notif-item:last-child {
+  border-bottom: none;
+}
+
+.notif-item.notif-read {
+  opacity: 0.55;
+}
+
+/* line-clamp utility (for notification messages) */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+@keyframes bounce-subtle {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+.animate-bounce-subtle {
+  animation: bounce-subtle 2s ease-in-out infinite;
+}
+
+.help-step-enter {
+  animation: fadeIn 0.4s ease-out;
+}
+

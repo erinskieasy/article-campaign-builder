@@ -14,12 +14,15 @@ function getClient() {
  * Generate a single sub-article from source text.
  * @param {string} sourceText - The original paper/article text.
  * @param {string} articleType - One of the ARTICLE_TYPES keys.
+ * @param {string} [customPrompt] - Optional custom system prompt override.
  * @returns {Promise<object>} Generated article object.
  */
-async function generateSubArticle(sourceText, articleType) {
+async function generateSubArticle(sourceText, articleType, customPrompt) {
   const typeDef = ARTICLE_TYPES[articleType];
-  if (!typeDef) {
-    throw new Error(`Unknown article type: ${articleType}`);
+  const systemPrompt = customPrompt || (typeDef && typeDef.systemPrompt);
+
+  if (!systemPrompt) {
+    throw new Error(`Unknown article type and no custom prompt provided: ${articleType}`);
   }
 
   const client = getClient();
@@ -27,7 +30,7 @@ async function generateSubArticle(sourceText, articleType) {
   const response = await client.chat.completions.create({
     model: 'gpt-4o',
     messages: [
-      { role: 'system', content: typeDef.systemPrompt },
+      { role: 'system', content: systemPrompt },
       { role: 'user', content: sourceText }
     ],
     temperature: 0.7,
@@ -38,7 +41,7 @@ async function generateSubArticle(sourceText, articleType) {
 
   // Extract a title from the first markdown heading, or use the type title
   const titleMatch = content.match(/^#\s+(.+)$/m);
-  const title = titleMatch ? titleMatch[1] : typeDef.title;
+  const title = titleMatch ? titleMatch[1] : (typeDef ? typeDef.title : articleType);
 
   return createArticle({ type: articleType, title, content });
 }
@@ -46,13 +49,19 @@ async function generateSubArticle(sourceText, articleType) {
 /**
  * Generate all sub-article types in parallel.
  * @param {string} sourceText - The original paper/article text.
+ * @param {object} [customTypes] - Optional map of type → { systemPrompt } for custom cards.
  * @returns {Promise<object>} Map of articleType → generated article.
  */
-async function generateAllSubArticles(sourceText) {
-  const types = Object.keys(ARTICLE_TYPES);
+async function generateAllSubArticles(sourceText, customTypes = {}) {
+  // Merge built-in types with any custom types
+  const allTypes = { ...ARTICLE_TYPES, ...customTypes };
+  const types = Object.keys(allTypes);
 
   const results = await Promise.allSettled(
-    types.map(type => generateSubArticle(sourceText, type))
+    types.map(type => {
+      const prompt = allTypes[type].systemPrompt;
+      return generateSubArticle(sourceText, type, prompt);
+    })
   );
 
   const articles = {};
@@ -64,7 +73,7 @@ async function generateAllSubArticles(sourceText) {
       articles[type] = {
         type,
         error: result.reason?.message || 'Generation failed',
-        meta: ARTICLE_TYPES[type]
+        meta: ARTICLE_TYPES[type] || allTypes[type] || null
       };
     }
   });
