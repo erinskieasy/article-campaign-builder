@@ -39,7 +39,12 @@ export function renderHelpModal() {
   return `
     <div id="help-modal-backdrop" class="modal-backdrop"></div>
     <div id="help-modal-panel" class="modal-panel">
-      <div class="modal-content max-w-lg p-0 overflow-hidden">
+      <div class="modal-content max-w-lg p-0 overflow-hidden relative">
+        <!-- Close Button -->
+        <button id="btn-help-close" class="absolute top-4 right-4 p-2 text-on-surface-variant hover:bg-surface-container-low rounded-full transition-all active:scale-95 z-10">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+
         <!-- Progress Bar -->
         <div class="h-1.5 w-full bg-surface-container-low">
           <div class="h-full bg-primary transition-all duration-500 ease-out" style="width: ${(_currentStep / TOTAL_STEPS) * 100}%"></div>
@@ -77,12 +82,12 @@ export function renderHelpModal() {
 
 export function openHelpModal() {
   _currentStep = 1;
+  updateHelpContent();
   const backdrop = document.getElementById('help-modal-backdrop');
   const panel = document.getElementById('help-modal-panel');
   if (backdrop && panel) {
     backdrop.classList.add('active');
     panel.classList.add('active');
-    updateHelpContent();
     document.body.style.overflow = 'hidden';
   }
 }
@@ -100,8 +105,15 @@ export function closeHelpModal() {
 function updateHelpContent() {
   const modalContainer = document.getElementById('help-modal-container');
   if (modalContainer) {
+    const isAlreadyActive = document.getElementById('help-modal-panel')?.classList.contains('active');
     modalContainer.innerHTML = renderHelpModal();
     mountHelpModal();
+    
+    // If we were already active (e.g. moving between steps), keep it active
+    if (isAlreadyActive) {
+      document.getElementById('help-modal-backdrop')?.classList.add('active');
+      document.getElementById('help-modal-panel')?.classList.add('active');
+    }
   }
 }
 
@@ -132,6 +144,13 @@ export function mountHelpModal() {
 
   if (backdrop) {
     backdrop.addEventListener('click', () => {
+      closeHelpModal();
+    });
+  }
+
+  const btnClose = document.getElementById('btn-help-close');
+  if (btnClose) {
+    btnClose.addEventListener('click', () => {
       closeHelpModal();
     });
   }
