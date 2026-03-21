@@ -12,7 +12,7 @@ const ARTICLE_TYPES = {
 Rewrite the following research paper as a friendly, engaging article for a general audience.
 Use everyday analogies, avoid jargon, and keep the tone warm and inviting.
 Aim for 600-900 words. Use short paragraphs and clear subheadings.
-Return the article in Markdown format.`
+Return the article in Markdown format with a compelling headline.`
   },
 
   'commentary': {
@@ -35,7 +35,7 @@ Aim for 700-1000 words in Markdown format with a compelling headline.`
     systemPrompt: `You are an AI/ML researcher writing for a technical-but-accessible audience.
 Reframe the following paper through the lens of artificial intelligence and machine learning.
 Highlight connections to AI, potential ML applications, synergies with neural networks, and implications for the AI industry.
-Aim for 700-1000 words in Markdown format.`
+Aim for 700-1000 words in Markdown format with a compelling headline.`
   },
 
   'trending-news': {

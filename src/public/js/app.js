@@ -39,8 +39,8 @@ const state = {
 
 const TYPE_META = {
   'non-technical': { icon: 'lightbulb', title: 'Non-Technical Article' },
-  'commentary':    { icon: 'chat_bubble', title: 'Commentary Blog Post' },
-  'ai-focused':    { icon: 'memory', title: 'AI-Focused Slant' },
+  'commentary': { icon: 'chat_bubble', title: 'Commentary Blog Post' },
+  'ai-focused': { icon: 'memory', title: 'AI-Focused Slant' },
   'trending-news': { icon: 'public', title: 'Trending Global News' }
 };
 
@@ -314,6 +314,8 @@ function init() {
       </div>
 
       <!-- Experimental Formats Bento Grid -->
+      <!-- let  get rid of  this section because it  doesnt work -->
+      <!-- 
       <section class="mt-32">
         <h2 class="text-2xl font-black text-on-surface mb-10 tracking-tight">Experimental Formats</h2>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 h-auto md:h-[400px]">
@@ -336,9 +338,12 @@ function init() {
           </div>
         </div>
       </section>
+      -->
     </main>
 
     <!-- Mobile Bottom Navigation -->
+    <!-- let  get rid of  this section because it  doesnt work -->
+    <!-- 
     <nav class="md:hidden fixed bottom-0 left-0 w-full bg-surface-container-lowest border-t border-outline-variant/10 px-6 py-3 flex justify-between items-center z-50">
       <button class="flex flex-col items-center gap-1 text-primary">
         <span class="material-symbols-outlined">dashboard</span>
@@ -362,6 +367,7 @@ function init() {
         <span class="text-[10px] font-bold uppercase">Account</span>
       </button>
     </nav>
+    -->
 
     <!-- Modals -->
     ${renderArticleModal()}
